@@ -83,14 +83,14 @@
                 });
 
                 socket.on("progress", function(data) {
-                    $scope.progress = data;
+                    $scope.progress = JSON.parse(data);
                     console.log(data);
                     $scope.$apply();
                 })
                 setInterval(function(){
                     socket.emit("progress")
                     socket.emit("train");
-                },500,true);
+                },0,true);
 
                 $scope.game = [];
                 for (var i = 0; i < 3; i++) {
@@ -126,19 +126,50 @@
     </div>
     <div class="row">
         <p>Self Play</p>
-        <table class="table table-bordered" ng-repeat="(key,value) in progress['self_play']">
-            <p>((key))</p>
-            <tr>
-                <td ng-if="key == 'iteration'">
-                    <p>Iteration : ((value))</p>
-                </td>
-                <td ng-if="key == 'scores'">
-                    <p>Best Player : ((value['best_player']))</p>
-                    <p>Drawn: ((value['drawn']))</p>
-                </td>
+        <table class="table table-bordered" >
+            <!--<thead>-->
+                <!--<th ng-repeat="(key,value) in progress['self_play']">-->
+                    <!--((key))-->
+                <!--</th>-->
+            <!--</thead>-->
+            <tbody>
+            <tr ng-repeat="(key,value) in progress['self_play']">
+                <td>((key)),((value))</td>
+                <!--<td ng-if="key == 'iteration'">-->
+                    <!--<p>Iteration : ((value))</p>-->
+                <!--</td>-->
+                <!--<td ng-if="key == 'scores'">-->
+                    <!--<p>Best Player : ((value['best_player']))</p>-->
+                    <!--<p>Draw: ((value['drawn']))</p>-->
+                <!--</td>-->
 
 
             </tr>
+            </tbody>
+        </table>
+
+        <p>Tournament</p>
+        <table class="table table-bordered" >
+            <!--<p>((key))</p>-->
+            <!--<thead>-->
+            <!--<th>-->
+                <!--((key))-->
+            <!--</th>-->
+            <!--</thead>-->
+            <!--<tbody>-->
+            <tr ng-repeat="(key,value) in progress['tournament']">
+                <td>((key)),((value))</td>
+                <!--<td ng-if="key == 'Episodes'">-->
+                    <!--<p>Iteration : ((value))</p>-->
+                <!--</td>-->
+                <!--<td ng-if="key == 'scores'">-->
+                    <!--<p>Best Player : ((value['best_player']))</p>-->
+                    <!--<p>Draw: ((value['drawn']))</p>-->
+                <!--</td>-->
+
+
+            </tr>
+            </tbody>
         </table>
 
     </div>

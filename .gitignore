@@ -119,3 +119,5 @@ games/archive/
 .idea/workspace.xml
 run/*
 run_archive/*
+.idea/
+__pycache__/

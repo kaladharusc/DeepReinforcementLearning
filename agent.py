@@ -220,6 +220,14 @@ class Agent():
 		f = open("./graphs/train_overall_loss.txt","w+")
 		f.write(",".join([str(x) for x in self.train_overall_loss]))
 		f.close()
+
+		f = open("./graphs/value_head_loss.txt", "w+")
+		f.write(",".join([str(x) for x in self.train_value_loss]))
+		f.close()
+
+		f = open("./graphs/policy_head_loss.txt", "w+")
+		f.write(",".join([str(x) for x in self.train_policy_loss]))
+		f.close()
 		# plt.plot(self.train_overall_loss, 'k')
 		# plt.plot(self.train_value_loss, 'k:')
 		# plt.plot(self.train_policy_loss, 'k--')
