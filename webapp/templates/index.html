@@ -1,0 +1,147 @@
+<html>
+
+<head>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+
+
+    </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"
+            integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ"
+            crossorigin="anonymous"></script>
+
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"
+            integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"
+          integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+
+
+    <style>
+        table {
+            width: 300px !important;
+            height: 300px
+        }
+
+        .player1 {
+            background: red;
+        }
+
+        .player2 {
+            background: blue;
+        }
+    </style>
+    <script>
+
+        var app = angular.module('app', []);
+
+        app.config(function ($interpolateProvider) {
+            $interpolateProvider.startSymbol('((');
+            $interpolateProvider.endSymbol('))');
+        });
+
+
+
+        app
+            .controller("GameController", function ($scope) {
+                var socket = io.connect('http://' + document.domain + ':' + location.port);
+                socket.on('connect', function () {
+//                    socket.emit('play', {data: 'I\'m connected!'});
+                    socket.emit('start');
+                });
+                $scope.board = ["-","-","-",
+                    "-","-","-",
+                    "-","-","-"];
+                $scope.progress = {};
+
+
+
+                socket.on('jarvis', function(data) {
+                    console.log("jarvis");
+                    console.log(data);
+                    if (data.indexOf(",") == -1) {
+                        console.log(data)
+                    } else {
+                        data = data.split(",");
+                        var i = 0;
+                        for (var j =0;j <3;j++) {
+                            for (var k=0;k<3;k++) {
+                                $scope.game[j][k] = String(data[i]);
+                                i++;
+                            }
+
+                        }
+                    }
+
+                    $scope.$apply();
+                });
+
+                socket.on("progress", function(data) {
+                    $scope.progress = data;
+                    console.log(data);
+                    $scope.$apply();
+                })
+                setInterval(function(){
+                    socket.emit("progress")
+                    socket.emit("train");
+                },500,true);
+
+                $scope.game = [];
+                for (var i = 0; i < 3; i++) {
+                    var temp = [];
+                    for (var j = 0; j < 3; j++) {
+                        temp.push("-");
+                    }
+
+                    $scope.game.push(temp);
+                }
+                $scope.play = function (i, j) {
+                    $scope.game[i][j] = 1;
+                    socket.emit('human', {data: String((3*i)+j)});
+                }
+            })
+    </script>
+</head>
+
+<body ng-app="app">
+<!--<h1>Hello World, where is adam.</h1>-->
+<div class="container" ng-controller="GameController">
+    <div class="row">
+
+        <table class="table table-bordered">
+            <tr ng-repeat="row in game">
+                <td ng-repeat="col in row track by $index"
+                    ng-class="{'player1': game[$parent.$index][$index] === '-1', 'player2': game[$parent.$index][$index] === '1'}"
+                    ng-click="play($parent.$index,$index)">
+
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="row">
+        <p>Self Play</p>
+        <table class="table table-bordered" ng-repeat="(key,value) in progress['self_play']">
+            <p>((key))</p>
+            <tr>
+                <td ng-if="key == 'iteration'">
+                    <p>Iteration : ((value))</p>
+                </td>
+                <td ng-if="key == 'scores'">
+                    <p>Best Player : ((value['best_player']))</p>
+                    <p>Drawn: ((value['drawn']))</p>
+                </td>
+
+
+            </tr>
+        </table>
+
+    </div>
+</div>
+</body>
+</html>

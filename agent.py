@@ -14,6 +14,9 @@ import time
 import matplotlib.pyplot as plt
 from IPython import display
 import pylab as pl
+import matplotlib.animation as animation
+from matplotlib import style
+
 
 
 class User():
@@ -23,12 +26,26 @@ class User():
 		self.action_size = action_size
 
 	def act(self, state, tau):
-		action = input('Enter your chosen action: ')
+		f = open("./communicate/input.txt", 'r+')
+		action = f.readline()
+		print("waiting for input")
+		while  action == "":
+			action = f.readline()
+			if action == "restart":
+				return action
+		action = int(action)
+		f.close()
+
+		f = open("./communicate/input.txt", 'w')
+		f.write("")
+		f.close()
+
 		pi = np.zeros(self.action_size)
 		pi[action] = 1
 		value = None
 		NN_value = None
 		return (action, pi, value, NN_value)
+
 
 
 
@@ -199,12 +216,16 @@ class Agent():
 			self.train_overall_loss.append(round(fit.history['loss'][config.EPOCHS - 1],4))
 			self.train_value_loss.append(round(fit.history['value_head_loss'][config.EPOCHS - 1],4)) 
 			self.train_policy_loss.append(round(fit.history['policy_head_loss'][config.EPOCHS - 1],4)) 
+		print("overal loss")
+		f = open("./graphs/train_overall_loss.txt","w+")
+		f.write(",".join([str(x) for x in self.train_overall_loss]))
+		f.close()
+		# plt.plot(self.train_overall_loss, 'k')
+		# plt.plot(self.train_value_loss, 'k:')
+		# plt.plot(self.train_policy_loss, 'k--')
+        #
+		# plt.legend(['train_overall_loss', 'train_value_loss', 'train_policy_loss'], loc='lower left')
 
-		plt.plot(self.train_overall_loss, 'k')
-		plt.plot(self.train_value_loss, 'k:')
-		plt.plot(self.train_policy_loss, 'k--')
-
-		plt.legend(['train_overall_loss', 'train_value_loss', 'train_policy_loss'], loc='lower left')
 
 		display.clear_output(wait=True)
 		display.display(pl.gcf())

@@ -9,6 +9,9 @@ from model import Residual_CNN
 from agent import Agent, User
 
 import config
+import json
+
+progress_data = {"self_play":{},"tournament":{}}
 
 def playMatchesBetweenVersions(env, run_version, player1version, player2version, EPISODES, logger, turns_until_tau0, goes_first = 0):
     
@@ -44,7 +47,10 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
     sp_scores = {'sp':0, "drawn": 0, 'nsp':0}
     points = {player1.name:[], player2.name:[]}
 
+    global progress_data
+
     for e in range(EPISODES):
+
 
         logger.info('====================')
         logger.info('EPISODE %d OF %d', e+1, EPISODES)
@@ -95,13 +101,23 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
             logger.info('action: %d', action)
             for r in range(env.grid_shape[0]):
                 logger.info(['----' if x == 0 else '{0:.2f}'.format(np.round(x,2)) for x in pi[env.grid_shape[1]*r : (env.grid_shape[1]*r + env.grid_shape[1])]])
-            logger.info('MCTS perceived value for %s: %f', state.pieces[str(state.playerTurn)] ,np.round(MCTS_value,2))
-            logger.info('NN perceived value for %s: %f', state.pieces[str(state.playerTurn)] ,np.round(NN_value,2))
+            # logger.info('MCTS perceived value for %s: %f', state.pieces[str(state.playerTurn)] ,np.round(MCTS_value,2))
+            # logger.info('NN perceived value for %s: %f', state.pieces[str(state.playerTurn)] ,np.round(NN_value,2))
             logger.info('====================')
 
             ### Do the action
             state, value, done, _ = env.step(action) #the value of the newState from the POV of the new playerTurn i.e. -1 if the previous player played a winning move
-            
+
+            # print("player turn", env.gameState.playerTurn)
+            # print(env.gameState.board)
+
+            if env.gameState.playerTurn == -1:
+
+                f = open("./communicate/output.txt", "w")
+                temp_board = [str(x) for x in env.gameState.board]
+                f.write(",".join(temp_board))
+                f.close()
+
             env.gameState.render(logger)
 
             if done == 1: 
@@ -117,6 +133,11 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
              
                 if value == 1:
                     logger.info('%s WINS!', players[state.playerTurn]['name'])
+
+                    f = open("./communicate/output.txt", "w")
+                    f.write('%s WINS!' % (players[state.playerTurn]['name']))
+                    f.close()
+
                     scores[players[state.playerTurn]['name']] = scores[players[state.playerTurn]['name']] + 1
                     if state.playerTurn == 1: 
                         sp_scores['sp'] = sp_scores['sp'] + 1
@@ -125,6 +146,11 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
 
                 elif value == -1:
                     logger.info('%s WINS!', players[-state.playerTurn]['name'])
+
+                    f = open("./communicate/output.txt", "w")
+                    f.write('%s WINS!' % (players[-state.playerTurn]['name']))
+                    f.close()
+
                     scores[players[-state.playerTurn]['name']] = scores[players[-state.playerTurn]['name']] + 1
                
                     if state.playerTurn == 1: 
@@ -134,6 +160,11 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
 
                 else:
                     logger.info('DRAW...')
+
+                    f = open("./communicate/output.txt", "w")
+                    f.write("DRAW")
+                    f.close()
+
                     scores['drawn'] = scores['drawn'] + 1
                     sp_scores['drawn'] = sp_scores['drawn'] + 1
 
@@ -141,4 +172,17 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
                 points[players[state.playerTurn]['name']].append(pts[0])
                 points[players[-state.playerTurn]['name']].append(pts[1])
 
+                if players[state.playerTurn]['name'] == players[-state.playerTurn]['name']:
+                    progress_data["self_play"]["scores"] = scores
+                    progress_data["self_play"]['Episodes'] = e
+                else:
+                    progress_data["tournament"]["scores"] = scores
+                    progress_data["tournament"]['Episodes'] = e
+                f = open("data/progress.txt", "w+")
+                f.write(json.dumps(progress_data))
+                f.close()
+
     return (scores, memory, points, sp_scores)
+if __name__ == '__main__':
+    env = Game()
+    playMatchesBetweenVersions(env, 1, 1, -1, 10, lg.logger_tourney, 0)

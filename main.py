@@ -15,7 +15,7 @@ from game import Game, GameState
 from agent import Agent
 from memory import Memory
 from model import Residual_CNN
-from funcs import playMatches, playMatchesBetweenVersions
+from funcs import playMatches, playMatchesBetweenVersions, progress_data
 
 import loggers as lg
 
@@ -66,6 +66,7 @@ else:
 copyfile('./config.py', run_folder + 'config.py')
 plot_model(current_NN.model, to_file=run_folder + 'models/model.png', show_shapes = True)
 
+
 print('\n')
 
 ######## CREATE THE PLAYERS ########
@@ -92,6 +93,7 @@ while 1:
     print('\n')
     
     memory.clear_stmemory()
+    progress_data["self_play"]["iteration"] = iteration
     
     if len(memory.ltmemory) >= config.MEMORY_SIZE:
 

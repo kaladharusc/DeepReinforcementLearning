@@ -35,6 +35,7 @@ class Game:
         currentBoard = state.board
         currentAV = actionValues
 
+
         currentBoard = np.array([
             currentBoard[0],currentBoard[1],currentBoard[2],
             currentBoard[3],currentBoard[4],currentBoard[5],

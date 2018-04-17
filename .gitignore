@@ -108,3 +108,14 @@ run_archive/
 code_archive/
 games/archive/
 *.pyc
+.DS_Store
+.idea/*
+.idea/DeepReinforcementLearning.iml
+.idea/codeStyles/
+.idea/dbnavigator.xml
+.idea/inspectionProfiles/
+.idea/misc.xml
+.idea/modules.xml
+.idea/workspace.xml
+run/*
+run_archive/*
