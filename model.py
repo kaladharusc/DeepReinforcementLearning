@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from keras.models import Sequential, load_model, Model
 from keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, Activation, LeakyReLU, add
 from keras.optimizers import SGD
-from keras import regularizers
+from keras import regularizers, callbacks
 
 from loss import softmax_cross_entropy_with_logits
 
@@ -30,7 +30,10 @@ class Gen_Model():
 		return self.model.predict(x)
 
 	def fit(self, states, targets, epochs, verbose, validation_split, batch_size):
-		return self.model.fit(states, targets, epochs=epochs, verbose=verbose, validation_split = validation_split, batch_size = batch_size)
+		tbCallBack = callbacks.TensorBoard(log_dir='./Graph', histogram_freq=0, write_graph=True,
+												 write_images=True)
+
+		return self.model.fit(states, targets, epochs=epochs, verbose=verbose, validation_split = validation_split, batch_size = batch_size, callbacks = [tbCallBack])
 
 	def write(self, game, version):
 		self.model.save(run_folder + 'models/version' + "{0:0>4}".format(version) + '.h5')
