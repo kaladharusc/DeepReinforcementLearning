@@ -30,7 +30,7 @@ class Gen_Model():
 		return self.model.predict(x)
 
 	def fit(self, states, targets, epochs, verbose, validation_split, batch_size):
-		tbCallBack = callbacks.TensorBoard(log_dir='./Graph', histogram_freq=0, write_graph=True,
+		tbCallBack = callbacks.TensorBoard(log_dir='./Graph/2', histogram_freq=0, write_graph=True,
 												 write_images=True)
 
 		return self.model.fit(states, targets, epochs=epochs, verbose=verbose, validation_split = validation_split, batch_size = batch_size, callbacks = [tbCallBack])
@@ -80,7 +80,7 @@ class Gen_Model():
 					filter = (filter + 1) % s[3]
 
 			except:
-	
+
 				try:
 					fig = plt.figure(figsize=(3, len(x)))  # width, height in inches
 					for i in range(len(x)):
@@ -90,22 +90,22 @@ class Gen_Model():
 						else:
 							clim = (0, 2)
 						sub.imshow([x[i]], cmap='coolwarm', clim=clim,aspect="auto")
-						
+
 					plt.show()
 
 				except:
 					try:
 						fig = plt.figure(figsize=(3, 3))  # width, height in inches
 						sub = fig.add_subplot(1, 1, 1)
-						sub.imshow(x[0], cmap='coolwarm', clim=(-1, 1),aspect="auto")
-						
+						sub.imshow(x[0], clim=(-1, 1),aspect="auto")
+
 						plt.show()
 
 					except:
 						pass
 
 			plt.show()
-				
+
 		lg.logger_model.info('------------------')
 
 
@@ -244,5 +244,5 @@ class Residual_CNN(Gen_Model):
 
 	def convertToModelInput(self, state):
 		inputToModel =  state.binary #np.append(state.binary, [(state.playerTurn + 1)/2] * self.input_dim[1] * self.input_dim[2])
-		inputToModel = np.reshape(inputToModel, self.input_dim) 
+		inputToModel = np.reshape(inputToModel, self.input_dim)
 		return (inputToModel)
