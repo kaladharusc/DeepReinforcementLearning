@@ -64,11 +64,11 @@ if initialise.INITIAL_MODEL_VERSION != None:
 # otherwise just ensure the weights on the two players are the same
 else:
     best_player_version = 0
-    best_NN.model.set_weights(current_NN.model.get_weights())
+    # best_NN.model.set_weights(current_NN.model.get_weights())
 
 # copy the config file to the run folder
 copyfile('./config.py', run_folder + 'config.py')
-plot_model(current_NN.model, to_file=run_folder + 'models/model.png', show_shapes=True)
+# plot_model(current_NN.model, to_file=run_folder + 'models/model.png', show_shapes=True)
 
 print('\n')
 
