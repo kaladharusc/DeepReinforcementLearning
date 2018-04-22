@@ -20,12 +20,55 @@ from matplotlib import style
 
 
 class User():
+
 	def __init__(self, name, state_size, action_size):
 		self.name = name
 		self.state_size = state_size
 		self.action_size = action_size
+		self.labels_array = [
+			"5649", "5642",
+			"5849", "5851", "5840", "5844",
+			"6051", "6053", "6042", "6046",
+			"6253", "6255", "6244",
+
+			"4940", "4942", "4935",
+			"5142", "5144", "5133", "5137",
+			"5344", "5346", "5335", "5339",
+			"5546", "5537",
+
+			"4033", "4026",
+			"4233", "4224", "4235", "4228",
+			"4435", "4437", "4426", "4430",
+			"4637", "4639", "4628",
+
+			"3324", "3326", "3319",
+			"3526", "3528", "3517", "3521",
+			"3728", "3730", "3719", "3723",
+			"3930", "3921",
+
+			"2417", "2410",
+			"2617", "2619", "2608", "2612",
+			"2819", "2810", "2821", "2814",
+			"3021", "3023", "3012",
+
+			"1708", "1710", "1703",
+			"1910", "1901", "1912", "1905",
+			"2112", "2103", "2114", "2107",
+			"2314", "2305",
+
+			"0801", "1001", "1003",
+			"1203", "1205", "1405", "1407"
+		]
 
 	def act(self, state, tau):
+		# action = input('Enter your chosen action: ')
+		# pi = np.zeros(self.action_size)
+		# ind = self.labels_array.index(action)
+		# pi[ind] = 1
+		# value = None
+		# NN_value = None
+
+
 		f = open("./communicate/input.txt", 'r+')
 		action = f.readline()
 		print("waiting for input")
@@ -33,7 +76,7 @@ class User():
 			action = f.readline()
 			if action == "restart":
 				return action
-		action = int(action)
+		# action = int(action)
 		f.close()
 
 		f = open("./communicate/input.txt", 'w')
@@ -41,10 +84,15 @@ class User():
 		f.close()
 
 		pi = np.zeros(self.action_size)
-		pi[action] = 1
+		ind = self.labels_array.index(action)
+		pi[ind] = 1
 		value = None
 		NN_value = None
-		return (action, pi, value, NN_value)
+		return (ind, pi, value, NN_value)
+
+
+
+		# return (ind, pi, value, NN_value)
 
 
 
@@ -121,10 +169,10 @@ class Agent():
 
 
 	def get_preds(self, state):
-		#predict the leaf
-		inputToModel = np.array([self.model.convertToModelInput(state)])
+		#predict_values the leaf
+		inputToModel = np.array([self.model.convert_to_network_input(state)])
 
-		preds = self.model.predict(inputToModel)
+		preds = self.model.predict_values(inputToModel)
 		value_array = preds[0]
 		logits_array = preds[1]
 		value = value_array[0]
@@ -132,7 +180,7 @@ class Agent():
 		logits = logits_array[0]
 
 		allowedActions = state.allowedActions
-
+		# print(allowedActions, logits.shape)
 		mask = np.ones(logits.shape,dtype=bool)
 		mask[allowedActions] = False
 		logits[mask] = -100
@@ -206,16 +254,16 @@ class Agent():
 		for i in range(config.TRAINING_LOOPS):
 			minibatch = random.sample(ltmemory, min(config.BATCH_SIZE, len(ltmemory)))
 
-			training_states = np.array([self.model.convertToModelInput(row['state']) for row in minibatch])
-			training_targets = {'value_head': np.array([row['value'] for row in minibatch])
-								, 'policy_head': np.array([row['AV'] for row in minibatch])} 
+			training_states = np.array([self.model.convert_to_network_input(row['state']) for row in minibatch])
+			training_targets = {'name_value': np.array([row['value'] for row in minibatch])
+								, 'name_policy': np.array([row['AV'] for row in minibatch])}
 
 			fit = self.model.fit(training_states, training_targets, epochs=config.EPOCHS, verbose=1, validation_split=0, batch_size = 32)
 			lg.logger_mcts.info('NEW LOSS %s', fit.history)
 
 			self.train_overall_loss.append(round(fit.history['loss'][config.EPOCHS - 1],4))
-			self.train_value_loss.append(round(fit.history['value_head_loss'][config.EPOCHS - 1],4)) 
-			self.train_policy_loss.append(round(fit.history['policy_head_loss'][config.EPOCHS - 1],4)) 
+			self.train_value_loss.append(round(fit.history['name_value_loss'][config.EPOCHS - 1],4))
+			self.train_policy_loss.append(round(fit.history['name_policy_loss'][config.EPOCHS - 1],4))
 		print("overal loss")
 		f = open("./graphs/train_overall_loss.txt","w+")
 		f.write(",".join([str(x) for x in self.train_overall_loss]))
@@ -241,10 +289,10 @@ class Agent():
 		time.sleep(1.0)
 
 		print('\n')
-		self.model.printWeightAverages()
+		# self.model.printWeightAverages()
 
 	def predict(self, inputToModel):
-		preds = self.model.predict(inputToModel)
+		preds = self.model.predict_values(inputToModel)
 		return preds
 
 	def buildMCTS(self, state):

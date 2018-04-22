@@ -1,1 +1,1 @@
-{"self_play": {"Episodes": 2, "scores": {"drawn": 2, "best_player": 1}}, "tournament": {}}
+{"tournament": {}, "self_play": {"iteration": 1, "scores": {"drawn": 0, "best_player": 2}, "Episodes": 1}}

@@ -14,7 +14,7 @@ from keras.utils import plot_model
 from game import Game, GameState
 from agent import Agent
 from memory import Memory
-from model import Residual_CNN
+from model_custom import CNN
 from funcs import playMatches, playMatchesBetweenVersions, progress_data
 
 import loggers as lg
@@ -47,8 +47,8 @@ else:
 ######## LOAD MODEL IF NECESSARY ########
 
 # create an untrained neural network objects from the config file
-current_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, (2,) + env.grid_shape,   env.action_size, config.HIDDEN_CNN_LAYERS)
-best_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, (2,) +  env.grid_shape,   env.action_size, config.HIDDEN_CNN_LAYERS)
+current_NN = CNN(config.REG_CONST, config.LEARNING_RATE, (2,) + env.grid_shape,   env.action_size, config.HIDDEN_CNN_LAYERS)
+best_NN = CNN(config.REG_CONST, config.LEARNING_RATE, (2,) +  env.grid_shape,   env.action_size, config.HIDDEN_CNN_LAYERS)
 
 #If loading an existing neural netwrok, set the weights from that model
 if initialise.INITIAL_MODEL_VERSION != None:
@@ -122,7 +122,7 @@ while 1:
             lg.logger_memory.info('CUR PRED ACTION VALUES: %s', ['%.2f' % elem for elem in  current_probs])
             lg.logger_memory.info('BES PRED ACTION VALUES: %s', ['%.2f' % elem for elem in  best_probs])
             lg.logger_memory.info('ID: %s', s['state'].id)
-            lg.logger_memory.info('INPUT TO MODEL: %s', current_player.model.convertToModelInput(s['state']))
+            lg.logger_memory.info('INPUT TO MODEL: %s', current_player.model.convert_to_network_input(s['state']))
 
             s['state'].render(lg.logger_memory)
             

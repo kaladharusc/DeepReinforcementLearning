@@ -13,6 +13,11 @@ LOGGER_DISABLED = {
 , 'model': False}
 
 
+import os
+abs_path = os.path.abspath("run/logs")
+print(abs_path)
+if not os.path.exists(abs_path):
+    os.makedirs(abs_path)
 logger_mcts = setup_logger('logger_mcts', run_folder + 'logs/logger_mcts.log')
 logger_mcts.disabled = LOGGER_DISABLED['mcts']
 

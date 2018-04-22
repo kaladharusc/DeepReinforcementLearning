@@ -19,7 +19,6 @@ def hello():
 
 @socketio.on('human')
 def handle_message(message):
-    print(message)
     f = open("../communicate/input.txt",'w')
     f.write(message['data'])
     f.close()
@@ -64,7 +63,7 @@ def start():
     out = f.readline().strip()
     f.close()
     print("out")
-    print(out)
+
     if out != "":
         # f = open("../communicate/output.txt", 'w')
         # f.write("")

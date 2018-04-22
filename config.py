@@ -1,5 +1,5 @@
 #### SELF PLAY
-EPISODES = 10
+EPISODES = 2
 MCTS_SIMS = 30
 MEMORY_SIZE = 300
 TURNS_UNTIL_TAU0 = 2 # turn on which it starts playing deterministically
@@ -26,5 +26,5 @@ HIDDEN_CNN_LAYERS = [
 	]
 
 #### EVALUATION
-EVAL_EPISODES = 20
+EVAL_EPISODES = 5
 SCORING_THRESHOLD = 1.3
