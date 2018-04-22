@@ -199,19 +199,20 @@ class GameState():
                                      perpendiular_position + (1 * steps)]
 
         temp = []
-        #
-        # print(self.playerTurn, i)
-        # for j in allowed:
-        #     if steps > 1 and self.board[j] == 0:
-        #         temp.append(j)
-        #     elif steps == 1:
-        #         temp.append(j)
 
-        return allowed
+        # print(self.playerTurn, i)
+        for j in allowed:
+            if j < 64 and steps > 1 and self.board[j] == 0:
+                temp.append(j)
+            elif j < 64 and steps == 1:
+                temp.append(j)
+
+        return temp
 
     def getKillActions(self, i, king=False):
         allowed = self.allowedMovesDiagonallyWithSteps(i, king=king)
         final_allowed = []
+        kill_moves = []
         allowed_len = len(allowed)
         steps = 2
         while len(allowed) != 0:
@@ -230,7 +231,7 @@ class GameState():
                     ind2 = str(temp_allowed[0])
                     ind = '0'+ind if len(ind) == 1 else ind
                     ind2 = '0'+ind2 if len(ind2) == 1 else ind2
-                    final_allowed.append(ind+ind2)
+                    kill_moves.append(ind+ind2)
                     # final_allowed = final_allowed + [{'from': i, 'to': temp_allowed[0], 'kill': j}]
                 allowed_len -= 1
             elif self.board[j] == 0:
@@ -240,8 +241,11 @@ class GameState():
                 ind2 = '0' + ind2 if len(ind2) == 1 else ind2
                 final_allowed.append(ind+ind2)
                 # final_allowed = final_allowed + [{'from': i, 'to': j, 'kill': None}]
-
-        return final_allowed
+        if len(kill_moves) == 0:
+            return final_allowed
+        else:
+            print(kill_moves)
+            return kill_moves
 
     def _allowedActions(self):
         allowed = []

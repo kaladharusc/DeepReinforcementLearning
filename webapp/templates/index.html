@@ -130,7 +130,7 @@
                 <td ng-repeat="col in row track by $index"
                     ng-class="{'player1': game[$parent.$index][$index] === '-1', 'player2': game[$parent.$index][$index] === '1'}"
                     ng-click="play($parent.$index,$index)">
-
+                        ((game[$parent.$index][$index]))<span style="font-size:8px">((8*$parent.$index+$index))</span>
                 </td>
             </tr>
         </table>
