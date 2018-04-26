@@ -6,34 +6,35 @@ import loggers as lg
 from game import Game, GameState
 from model_custom import CNN
 
-from agent import Agent, User
+from agent import Agent, User, UserCheckers
 
 import config
 import json
+import file_utils
 
 progress_data = {"self_play":{},"tournament":{}}
 
 def playMatchesBetweenVersions(env, run_version, player1version, player2version, EPISODES, logger, turns_until_tau0, goes_first = 0):
     
     if player1version == -1:
-        player1 = User('player1', env.state_size, env.action_size)
+        player1 = User('Adam', env.state_size, env.action_size) if env.name == "tic_tac_toe" else UserCheckers('Adam', env.state_size, env.action_size)
     else:
         player1_NN = CNN(config.REG_CONST, config.LEARNING_RATE, env.input_shape,   env.action_size, config.HIDDEN_CNN_LAYERS)
 
         if player1version > 0:
             player1_network = player1_NN.read(env.name, run_version, player1version)
             player1_NN.model.set_weights(player1_network.get_weights())   
-        player1 = Agent('player1', env.state_size, env.action_size, config.MCTS_SIMS, config.CPUCT, player1_NN)
+        player1 = Agent('Jarvis', env.state_size, env.action_size, config.MCTS_SIMS, config.CPUCT, player1_NN)
 
     if player2version == -1:
-        player2 = User('player2', env.state_size, env.action_size)
+        player2 = User('Adam', env.state_size, env.action_size) if env.name == "tic_tac_toe" else UserCheckers('Adam', env.state_size, env.action_size)
     else:
         player2_NN = CNN(config.REG_CONST, config.LEARNING_RATE, env.input_shape,   env.action_size, config.HIDDEN_CNN_LAYERS)
         
         if player2version > 0:
             player2_network = player2_NN.read(env.name, run_version, player2version)
             player2_NN.model.set_weights(player2_network.get_weights())
-        player2 = Agent('player2', env.state_size, env.action_size, config.MCTS_SIMS, config.CPUCT, player2_NN)
+        player2 = Agent('Jarvis', env.state_size, env.action_size, config.MCTS_SIMS, config.CPUCT, player2_NN)
 
     scores, memory, points, sp_scores = playMatches(player1, player2, EPISODES, logger, turns_until_tau0, None, goes_first)
 
@@ -66,15 +67,25 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
         player1.mcts = None
         player2.mcts = None
 
+
         if goes_first == 0:
             player1Starts = random.randint(0,1) * 2 - 1
         else:
             player1Starts = goes_first
 
+        if player2.name == "Adam":
+            f = open("./communicate/output.txt", "w")
+            temp_board = [str(x) for x in env.gameState.board]
+            f.write(",".join(temp_board))
+            f.close()
+
+
         if player1Starts == 1:
             players = {1:{"agent": player1, "name":player1.name}
                     , -1: {"agent": player2, "name":player2.name}
                     }
+            progress_data["players"] = {'O': player2.name,
+                                        'X': player1.name}
             logger.info(player1.name + ' plays as X')
         else:
             players = {1:{"agent": player2, "name":player2.name}
@@ -83,7 +94,11 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
             logger.info(player2.name + ' plays as X')
             logger.info('--------------')
 
+            progress_data["players"] = { 'O': player1.name,
+                                        'X': player2.name}
+        file_utils.write_progress(progress_data)
         env.gameState.render(logger)
+        print(players)
 
         while done == 0:
             turn = turn + 1
@@ -112,12 +127,10 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
             # print("player turn", env.gameState.playerTurn)
             # print(env.gameState.board)
 
-            if env.gameState.playerTurn == -1:
-
-                f = open("./communicate/output.txt", "w")
+            # print(players[state.playerTurn]['name'])
+            if players[state.playerTurn]['name'] in ["Adam", "best_player", "current_player"]:
                 temp_board = [str(x) for x in env.gameState.board]
-                f.write(",".join(temp_board))
-                f.close()
+                file_utils.write_output(",".join(temp_board))
 
             env.gameState.render(logger)
 
@@ -179,9 +192,7 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
                 else:
                     progress_data["tournament"]["scores"] = scores
                     progress_data["tournament"]['Episodes'] = e
-                f = open("data/progress.txt", "w+")
-                f.write(json.dumps(progress_data))
-                f.close()
+                file_utils.write_progress(progress_data)
 
     return (scores, memory, points, sp_scores)
 if __name__ == '__main__':

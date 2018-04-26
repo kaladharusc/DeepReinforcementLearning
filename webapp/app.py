@@ -12,10 +12,12 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 socketio = SocketIO(app)
 
 
-@app.route("/")
+@app.route("/checkers")
 def hello():
-
     return render_template('index.html')
+@app.route("/tic-tac-toe")
+def tictactoe():
+    return render_template('index2.html')
 
 @socketio.on('human')
 def handle_message(message):

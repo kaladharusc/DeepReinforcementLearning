@@ -121,3 +121,9 @@ run/*
 run_archive/*
 .idea/
 __pycache__/
+Graph/
+graphs/layers0.png
+graphs/layers149.png
+graphs/layers3.png
+run/
+.DS_Store

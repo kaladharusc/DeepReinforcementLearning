@@ -19,7 +19,7 @@ from matplotlib import style
 
 
 
-class User():
+class UserCheckers():
 
 	def __init__(self, name, state_size, action_size):
 		self.name = name
@@ -61,13 +61,6 @@ class User():
 		]
 
 	def act(self, state, tau):
-		# action = input('Enter your chosen action: ')
-		# pi = np.zeros(self.action_size)
-		# ind = self.labels_array.index(action)
-		# pi[ind] = 1
-		# value = None
-		# NN_value = None
-
 
 		f = open("./communicate/input.txt", 'r+')
 		action = f.readline()
@@ -76,7 +69,7 @@ class User():
 			action = f.readline()
 			if action == "restart":
 				return action
-		# action = int(action)
+
 		f.close()
 
 		f = open("./communicate/input.txt", 'w')
@@ -90,6 +83,34 @@ class User():
 		NN_value = None
 		return (ind, pi, value, NN_value)
 
+
+class User():
+
+	def __init__(self, name, state_size, action_size):
+		self.name = name
+		self.state_size = state_size
+		self.action_size = action_size
+
+	def act(self, state, tau):
+		f = open("./communicate/input.txt", 'r+')
+		action = f.readline()
+		print("waiting for input")
+		while  action == "":
+			action = f.readline()
+			if action == "restart":
+				return action
+		action = int(action)
+		f.close()
+
+		f = open("./communicate/input.txt", 'w')
+		f.write("")
+		f.close()
+
+		pi = np.zeros(self.action_size)
+		pi[action] = 1
+		value = None
+		NN_value = None
+		return (action, pi, value, NN_value)
 
 
 		# return (ind, pi, value, NN_value)
